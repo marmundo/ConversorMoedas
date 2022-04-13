@@ -11,6 +11,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.conversormoedas.pojo.Dolar;
+import com.example.conversormoedas.pojo.Euro;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -48,50 +49,81 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Toast.makeText(this, this.getString(R.string.informe_valor), Toast.LENGTH_LONG).show();
             } else {
                 Double reais = Double.parseDouble(mValor);
-                this.mViewHolder.textDolar.setText("$ " + String.format("%.4f", converterDolar(reais)));
-                this.mViewHolder.textEuro.setText("€ " + String.format("%.4f", converterEuro(reais)));
+                converterDolar(reais);
+                converterEuro(reais);
             }
         }
     }
 
 
-    private Double converterDolar(Double reais) {
-        // Criando o RestAdapter Trecho 01
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://economia.awesomeapi.com.br/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        CotacaoService cotacaoService = retrofit.create(CotacaoService.class);
+    private void converterDolar(Double reais) {
+
+        final double[] cotacaoDolar = {1.0};
+        CotacaoService cotacaoService = getCotacaoService();
 
         Call<Dolar> cotacao = cotacaoService.getCotacaoDolar();
-        cotacao.enqueue(new Callback<Dolar>(){
+        cotacao.enqueue(new Callback<Dolar>() {
             @Override
             public void onResponse(Call<Dolar> call, Response<Dolar> response) {
                 if (response.isSuccessful()) {
                     int statusCOde = response.code();
                     Dolar resposta = response.body();
 
-                    Log.w("App", resposta.getUsd().getLow());
+
+                    mViewHolder.textDolar.setText("$ " + resposta.getUsd().getLow());
                 } else {
-                    Log.w("App",response.errorBody().toString());
+                    Log.w("App", response.errorBody().toString());
                 }// this will tell you why your api doesnt work most of time
 
             }
 
             @Override
             public void onFailure(Call<Dolar> call, Throwable t) {
-                Log.w("App",t.toString());
+                Log.w("App", t.toString());
             }
         });
 
 
-        Double cotacaoDolar = 4.0;
-        return reais / cotacaoDolar;
     }
 
-    private Double converterEuro(Double reais) {
-        Double cotacaoEuro = 5.0;
-        return reais / cotacaoEuro;
+    private CotacaoService getCotacaoService() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://economia.awesomeapi.com.br/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        CotacaoService cotacaoService = retrofit.create(CotacaoService.class);
+        return cotacaoService;
+    }
+
+    private void converterEuro(Double reais) {
+
+
+        final double[] cotacaoEuro = {1.0};
+        CotacaoService cotacaoService = getCotacaoService();
+
+        Call<Euro> cotacao = cotacaoService.getCotacaoEuro();
+        cotacao.enqueue(new Callback<Euro>() {
+            @Override
+            public void onResponse(Call<Euro> call, Response<Euro> response) {
+                Log.w("App", "Teste");
+                if (response.isSuccessful()) {
+                    Log.w("App", "Teste");
+                    int statusCOde = response.code();
+                    Euro resposta = response.body();
+
+                    mViewHolder.textEuro.setText("€ " + resposta.getEur().getLow());
+                } else {
+                    Log.w("App", response.errorBody().toString());
+                }// this will tell you why your api doesnt work most of time
+
+            }
+
+            @Override
+            public void onFailure(Call<Euro> call, Throwable t) {
+                Log.w("App", t.toString());
+            }
+        });
+
     }
 
     private static class ViewHolder {

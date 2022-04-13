@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName;
 
 public class Dolar {
 
-    @SerializedName("usd")
+    @SerializedName("USD")
     @Expose
     private Usd usd;
 
